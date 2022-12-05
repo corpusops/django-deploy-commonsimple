@@ -87,6 +87,7 @@ export TMPDIR="${TMPDIR:-/tmp}"
 export STARTUP_LOG="${STARTUP_LOG:-$TMPDIR/django_startup.log}"
 export APP_TYPE="${APP_TYPE:-django}"
 export APP_USER="${APP_USER:-$APP_TYPE}"
+export HOST_USER_UID="${HOST_USER_UID:-$(id -u $APP_USER)}"
 export INIT_HOOKS_DIR="${INIT_HOOKS_DIR:-${BASE_DIR}/sys/scripts/hooks}"
 export APP_GROUP="$APP_USER"
 export EXTRA_USER_DIRS="${EXTRA_USER_DIRS-}"
@@ -213,6 +214,10 @@ services_setup() {
 # fixperms: basic file & ownership enforcement
 fixperms() {
     if [[ -n $NO_FIXPERMS ]];then return 0;fi
+	if [ "$(id -u $APP_USER)" != "$HOST_USER_UID" ];then
+	    groupmod -g $HOST_USER_UID $APP_USER
+	    usermod -u $HOST_USER_UID -g $HOST_USER_UID $APP_USER
+	fi
     for i in /etc/{crontabs,cron.d} /etc/logrotate.d /etc/supervisor.d;do
         if [ -e $i ];then
             while read f;do
