@@ -43,7 +43,8 @@ cops_django_db_password: "secret4gzQNe3c8851VOJ"
 cops_django_db_name: "{{cops_django_name}}"
 cops_django_build_args: "--no-cache django cron"
 # backup could be remove in a-while when we have redeployed it everywhere
-cops_django_restarted_services_default: "db redis django nginx backup cron"
+# do not remove setup-* services for retrocompat !
+cops_django_restarted_services_default: "db redis memcached setup-mysql setup-postgres setup-db django nginx backup cron"
 cops_django_restarted_services: "{{cops_django_restarted_services_default}}"
 cops_django_purge_volumes: [statics]
 cops_django_medias_owner: "1000"
@@ -102,7 +103,8 @@ cops_django_sentry_dsn: ''
 cops_django_docker_env_freeform: |-
   {{ cops_django_docker_env_defaults}}
   {{ cops_django_docker_env_extra}}
-cops_django_gunicorn_class: "sync"
+# cops_django_gunicorn_class: "sync"
+cops_django_gunicorn_class: "gevent"
 cops_django_gunicorn_extra_args: ""
 cops_django_generic_db_mode: postgres
 cops_django_db_mode: "{{cops_django_generic_db_mode}}"
@@ -503,7 +505,7 @@ teleport_stop_script: "{{teleport_stop_script_default}}"
 teleport_reset_db_script: "{{teleport_reset_db_script_default}}"
 teleport_post_reset_script: "{{teleport_post_reset_script_default}}"
 teleport_post_restart_services: "db"
-teleport_post_force_restart_services: "setup-postgres setup-mysql redis memcached"
+teleport_post_force_restart_services: "setup-mysql setup-postgres setup-db redis memcached"
 teleport_restart_dependant_services: |-
   set -e
   cd "{{teleport_wd}}"
