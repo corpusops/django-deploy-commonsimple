@@ -91,7 +91,7 @@ export HOST_USER_UID="${HOST_USER_UID:-$(id -u $APP_USER)}"
 export INIT_HOOKS_DIR="${INIT_HOOKS_DIR:-${BASE_DIR}/sys/scripts/hooks}"
 export APP_GROUP="$APP_USER"
 export EXTRA_USER_DIRS="${EXTRA_USER_DIRS-}"
-export USER_DIRS="${USER_DIRS:-". src public/media data /logs/cron $LOCAL_DIR ${EXTRA_USER_DIRS}"}"
+export USER_DIRS="${USER_DIRS:-". .tox src public/media data /logs/cron $LOCAL_DIR ${EXTRA_USER_DIRS}"}"
 export SHELL_USER="${SHELL_USER:-${APP_USER}}" SHELL_EXECUTABLE="${SHELL_EXECUTABLE:-/bin/bash}"
 
 # django variables
@@ -117,6 +117,14 @@ elif [[ "$DJANGO_CELERY_BROKER" = "redis" ]];then
     burl="redis://$DJANGO_CELERY_HOST/"
 fi
 export DJANGO__CELERY_BROKER_URL="${DJANGO__CELERY_BROKER_URL:-$burl}"
+
+export TOX_DIRECT=${TOX_DIRECT-1}
+export TOX_DIRECT_YOLO=${TOX_DIRECT_YOLO-1}
+if [[ -z "$TOX_DIRECT_YOLO" ]];then unset TOX_DIRECT_YOLO;fi
+if [[ -z "$TOX_DIRECT" ]];then unset TOX_DIRECT;fi
+for tdir in "$SRC_DIR" "$TOPDIR";do for tini in tox.ini setup.cfg;do
+    toxini="$tdir/$tini";if [ -e $toxinit ];then export TOX_CONFIG_FILE="$toxini";break;fi
+done;done
 
 # forward console integration
 export TERM="${TERM-}" COLUMNS="${COLUMNS-}" LINES="${LINES-}"
